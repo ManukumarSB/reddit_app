@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "1078336378880",
+    "firebase_url": "https://flutter-reddit-app.firebaseio.com",
+    "project_id": "flutter-reddit-app",
+    "storage_bucket": "flutter-reddit-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1078336378880:android:bfb3878cc5cd44c3",
+        "android_client_info": {
+          "package_name": "com.example.flutter_reddit_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1078336378880-qf0nr5b4etfpcn2d8acqihfslp7thgv3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDRYlj82YzX8TzkytxG_mgoF_GZMvcFu40"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1078336378880-qf0nr5b4etfpcn2d8acqihfslp7thgv3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
