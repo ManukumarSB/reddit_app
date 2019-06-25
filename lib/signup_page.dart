@@ -257,13 +257,15 @@ class _SignupPageState extends State<SignupPage> {
     _passController.clear();
     _confirmPassController.clear();
     setState(() => isLoading = true);
-
-    final StorageReference ref =
-        FirebaseStorage.instance.ref().child("${Random().nextInt(10000)}.jpg");
-    StorageUploadTask uploadTask = ref.putFile(sampleImage);
-    StorageTaskSnapshot storageTaskSnapshot = await uploadTask.onComplete;
-    String downloadUrl = await storageTaskSnapshot.ref.getDownloadURL();
-    _path = downloadUrl.toString();
+    if (sampleImage != null) {
+      final StorageReference ref = FirebaseStorage.instance
+          .ref()
+          .child("${Random().nextInt(10000)}.jpg");
+      StorageUploadTask uploadTask = ref.putFile(sampleImage);
+      StorageTaskSnapshot storageTaskSnapshot = await uploadTask.onComplete;
+      String downloadUrl = await storageTaskSnapshot.ref.getDownloadURL();
+      _path = downloadUrl.toString();
+    }
     FirebaseAuth.instance
         .createUserWithEmailAndPassword(email: email, password: pass)
         .then((signedInUser) {
@@ -271,8 +273,17 @@ class _SignupPageState extends State<SignupPage> {
           .storeNewUser(_firstName, _phoneNumber, signedInUser, _path, context);
     }).catchError((e) {
       print(e);
+      AlertDialog dialog = new AlertDialog(
+        title: new Text(
+            "Wrong or already used credentials, please enter correct detalis",
+            style: TextStyle(color: Colors.blue)),
+        actions: <Widget>[
+          new FlatButton(
+              onPressed: () => Navigator.pop(context), child: const Text('OK'))
+        ],
+      );
+      showDialog(context: context, child: dialog);
     });
-
     setState(() {
       isLoading = false;
     });

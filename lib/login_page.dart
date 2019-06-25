@@ -106,9 +106,6 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _loginPressed() {
-    setState(() {
-      isLoading = true;
-    });
     String p =
         r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
     var email = _emailController.text.trim();
@@ -138,6 +135,9 @@ class _LoginPageState extends State<LoginPage> {
       showDialog(context: context, child: dialog);
       return;
     }
+    setState(() {
+      isLoading = true;
+    });
     FirebaseAuth.instance
         .signInWithEmailAndPassword(
       email: email,
@@ -160,12 +160,14 @@ class _LoginPageState extends State<LoginPage> {
             style: TextStyle(color: Colors.red)),
         actions: <Widget>[
           new FlatButton(
-              onPressed: () => Navigator.of(context).pushNamed('/signup'),
-              child: const Text('OK'))
+              onPressed: () => Navigator.pop(context), child: const Text('OK'))
         ],
       );
       showDialog(context: context, child: dialog);
       print("error $e");
+      setState(() {
+        isLoading = false;
+      });
     });
   }
 }
