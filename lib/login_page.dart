@@ -8,8 +8,8 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  String _email;
-  String _password;
+  final TextEditingController _emailController = new TextEditingController();
+  final TextEditingController _passController = new TextEditingController();
   bool isLoading = false;
 
   @override
@@ -47,31 +47,23 @@ class _LoginPageState extends State<LoginPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     TextField(
+                      controller: _emailController,
                       decoration: InputDecoration(
                           hintText: 'Email',
                           labelText: "Email",
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(20.0))),
-                      onChanged: (value) {
-                        setState(() {
-                          _email = value;
-                        });
-                      },
                     ),
                     SizedBox(
                       height: 15.0,
                     ),
                     TextField(
+                      controller: _passController,
                       decoration: InputDecoration(
                           hintText: 'Password',
                           labelText: "Password",
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(20.0))),
-                      onChanged: (value) {
-                        setState(() {
-                          _password = value;
-                        });
-                      },
                       obscureText: true,
                     ),
                     SizedBox(
@@ -91,38 +83,12 @@ class _LoginPageState extends State<LoginPage> {
                               }),
                         ),
                         RaisedButton(
-                            child: Text("Login"),
-                            color: Colors.blue,
-                            textColor: Colors.white,
-                            elevation: 7.0,
-                            onPressed: () {
-                              if (_email != null && _password != null) {
-                                setState(() {
-                                  isLoading = true;
-                                });
-
-                                FirebaseAuth.instance
-                                    .signInWithEmailAndPassword(
-                                  email: _email,
-                                  password: _password,
-                                )
-                                    .then((FirebaseUser user) {
-                                  setState(() {
-                                    isLoading = false;
-                                  });
-
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => HomePage(
-                                              email: _email,
-                                            )),
-                                  );
-                                }).catchError((e) {
-                                  print(e);
-                                });
-                              }
-                            }),
+                          child: Text("Login"),
+                          color: Colors.blue,
+                          textColor: Colors.white,
+                          elevation: 7.0,
+                          onPressed: _loginPressed,
+                        )
                       ],
                     ),
                     SizedBox(
@@ -137,5 +103,69 @@ class _LoginPageState extends State<LoginPage> {
         ],
       )));
     }
+  }
+
+  void _loginPressed() {
+    setState(() {
+      isLoading = true;
+    });
+    String p =
+        r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
+    var email = _emailController.text.trim();
+    RegExp exp = new RegExp(p);
+    if (!exp.hasMatch(email)) {
+      AlertDialog dialog = new AlertDialog(
+        title:
+            new Text("Email is not valid", style: TextStyle(color: Colors.red)),
+        actions: <Widget>[
+          new FlatButton(
+              onPressed: () => Navigator.pop(context), child: const Text('OK'))
+        ],
+      );
+      showDialog(context: context, child: dialog);
+      return;
+    }
+    var password = _passController.text;
+    if (password.length < 6) {
+      AlertDialog dialog = new AlertDialog(
+        title: new Text("Password is too short",
+            style: TextStyle(color: Colors.red)),
+        actions: <Widget>[
+          new FlatButton(
+              onPressed: () => Navigator.pop(context), child: const Text('OK'))
+        ],
+      );
+      showDialog(context: context, child: dialog);
+      return;
+    }
+    FirebaseAuth.instance
+        .signInWithEmailAndPassword(
+      email: email,
+      password: password,
+    )
+        .then((FirebaseUser user) {
+      setState(() {
+        isLoading = false;
+      });
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (context) => HomePage(
+                  email: email,
+                )),
+      );
+    }).catchError((e) {
+      AlertDialog dialog = new AlertDialog(
+        title: new Text("user not exist please Signup",
+            style: TextStyle(color: Colors.red)),
+        actions: <Widget>[
+          new FlatButton(
+              onPressed: () => Navigator.of(context).pushNamed('/signup'),
+              child: const Text('OK'))
+        ],
+      );
+      showDialog(context: context, child: dialog);
+      print("error $e");
+    });
   }
 }

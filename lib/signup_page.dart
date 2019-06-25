@@ -92,8 +92,6 @@ class _SignupPageState extends State<SignupPage> {
                       alignment: FractionalOffset.center,
                       decoration: new BoxDecoration(
                         color: const Color.fromRGBO(247, 64, 106, 1.0),
-                        borderRadius:
-                            new BorderRadius.all(const Radius.circular(50.0)),
                       ),
                       child: sampleImage == null
                           ? new Text(
@@ -197,53 +195,7 @@ class _SignupPageState extends State<SignupPage> {
                         color: Colors.blue,
                         textColor: Colors.white,
                         elevation: 7.0,
-                        onPressed: () async {
-                          var _email = _emailController.text;
-                          var _password = _passController.text;
-                          var _confirmPass = _confirmPassController.text;
-                          if (_confirmPass != _password) {
-                            AlertDialog dialog = new AlertDialog(
-                              title: new Text("Passwords didn't match"),
-                              actions: <Widget>[
-                                new FlatButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    child: const Text('OK'))
-                              ],
-                            );
-                            showDialog(context: context, child: dialog);
-                            return;
-                          }
-                          setState(() {
-                            isLoading = true;
-                          });
-
-                          final StorageReference ref = FirebaseStorage.instance
-                              .ref()
-                              .child("${Random().nextInt(10000)}.jpg");
-
-                          StorageUploadTask uploadTask =
-                              ref.putFile(sampleImage);
-
-                          StorageTaskSnapshot storageTaskSnapshot =
-                              await uploadTask.onComplete;
-
-                          String downloadUrl =
-                              await storageTaskSnapshot.ref.getDownloadURL();
-                          _path = downloadUrl.toString();
-                          FirebaseAuth.instance
-                              .createUserWithEmailAndPassword(
-                                  email: _email, password: _password)
-                              .then((signedInUser) {
-                            UserManagement().storeNewUser(_firstName,
-                                _phoneNumber, signedInUser, _path, context);
-                          }).catchError((e) {
-                            print(e);
-                          });
-
-                          setState(() {
-                            isLoading = false;
-                          });
-                        },
+                        onPressed: _signupPressed,
                       ),
                     ],
                   )
@@ -252,5 +204,77 @@ class _SignupPageState extends State<SignupPage> {
         ],
       )));
     }
+  }
+
+  void _signupPressed() async {
+    String p =
+        r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
+    var email = _emailController.text.trim();
+    RegExp exp = new RegExp(p);
+    if (!exp.hasMatch(email)) {
+      AlertDialog dialog = new AlertDialog(
+        title:
+            new Text("Email is not valid", style: TextStyle(color: Colors.red)),
+        actions: <Widget>[
+          new FlatButton(
+              onPressed: () => Navigator.pop(context), child: const Text('OK'))
+        ],
+      );
+      showDialog(context: context, child: dialog);
+      return;
+    }
+    var pass = _passController.text;
+    if (pass.length < 6) {
+      AlertDialog dialog = new AlertDialog(
+        title: new Text("Password is too short",
+            style: TextStyle(color: Colors.red)),
+        actions: <Widget>[
+          new FlatButton(
+              onPressed: () => Navigator.pop(context), child: const Text('OK'))
+        ],
+      );
+      showDialog(context: context, child: dialog);
+      return;
+    }
+
+    var confirmPass = _confirmPassController.text;
+    if (confirmPass != pass) {
+      AlertDialog dialog = new AlertDialog(
+        title: new Text("Passwords didn't match",
+            style: TextStyle(color: Colors.red)),
+        actions: <Widget>[
+          new FlatButton(
+              onPressed: () => Navigator.pop(context), child: const Text('OK'))
+        ],
+      );
+      showDialog(context: context, child: dialog);
+      return;
+    }
+    setState(() {
+      isLoading = true;
+    });
+    _emailController.clear();
+    _passController.clear();
+    _confirmPassController.clear();
+    setState(() => isLoading = true);
+
+    final StorageReference ref =
+        FirebaseStorage.instance.ref().child("${Random().nextInt(10000)}.jpg");
+    StorageUploadTask uploadTask = ref.putFile(sampleImage);
+    StorageTaskSnapshot storageTaskSnapshot = await uploadTask.onComplete;
+    String downloadUrl = await storageTaskSnapshot.ref.getDownloadURL();
+    _path = downloadUrl.toString();
+    FirebaseAuth.instance
+        .createUserWithEmailAndPassword(email: email, password: pass)
+        .then((signedInUser) {
+      UserManagement()
+          .storeNewUser(_firstName, _phoneNumber, signedInUser, _path, context);
+    }).catchError((e) {
+      print(e);
+    });
+
+    setState(() {
+      isLoading = false;
+    });
   }
 }
