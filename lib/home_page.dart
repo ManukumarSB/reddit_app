@@ -9,7 +9,7 @@ class HomePage extends StatefulWidget {
   HomePage({this.email, this.userImage});
   @override
   _HomePageState createState() {
-    return _HomePageState(); 
+    return _HomePageState();
   }
 }
 
@@ -35,20 +35,62 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.orange[200],
+      drawer: Drawer(
+        child: ListView(
+          children: <Widget>[
+            new UserAccountsDrawerHeader(
+              accountName: new Text(userName),
+              accountEmail: new Text(widget.email),
+              decoration: new BoxDecoration(
+                color: Colors.orange[800],
+              ),
+              currentAccountPicture: CircleAvatar(
+                  backgroundImage: NetworkImage(userImage)),
+            ),
+            new ListTile(
+                leading: Icon(Icons.apps),
+                title: new Text("Apps"),
+                onTap: () {
+                  Navigator.pop(context);
+                }),
+            new ListTile(
+                leading: Icon(Icons.dashboard),
+                title: new Text("Docs"),
+                onTap: () {
+                  Navigator.pop(context);
+                }),
+            new ListTile(
+                leading: Icon(Icons.settings),
+                title: new Text("Settings"),
+                onTap: () {
+                  Navigator.pop(context);
+                }),
+            new Divider(),
+            new ListTile(
+                leading: Icon(Icons.info),
+                title: new Text("About"),
+                onTap: () {
+                  Navigator.pop(context);
+                }),
+            new ListTile(
+                leading: Icon(Icons.power_settings_new),
+                title: new Text("Logout"),
+                onTap: () {
+                  Navigator.pop(context);
+                }),
+          ],
+        ),
+      ),
       appBar: AppBar(
         backgroundColor: Colors.orange[800],
+        centerTitle: true,
         title: Text(userName),
-        actions: <Widget>[
-          Container(
-            margin: EdgeInsets.only(right: 20.0),
-            height: 40.0,
-            width: 50.0,
-            child: CircleAvatar(
-                radius: 10.0,
-                backgroundColor: const Color(0xFF778899),
-                backgroundImage: NetworkImage(userImage)),
-          ),
-        ],
+        // leading: InkWell(
+        //     child: CircleAvatar(
+        //       radius: 20.0,
+        //       backgroundColor: const Color(0xFF778899),
+        //       backgroundImage: NetworkImage(userImage),
+        //     )),
       ),
       body: _buildBody(context, widget.email),
     );
